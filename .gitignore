@@ -1,7 +1,11 @@
 # Jupyter Notebook
 .ipynb_checkpoints
-#obsoba7
-.mp4
-.json
-.jpg
-.pt
+
+# Custom Files
+*.mp4
+*.json
+*.jpg
+*.pt
+
+# python's cache
+/__pycache__
