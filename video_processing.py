@@ -13,34 +13,19 @@ from tqdm import tqdm
 from torchvision import transforms
 from object_tracking import *
 import time
+
 model = torch.hub.load('ultralytics/yolov5', 'yolov5m', pretrained=True)
 model.eval()
 
-class Image_Classifier(nn.Module):
-    def init(self):
-        super().init()
-        self.model = nn.Sequential(
-             Conv2d(3, 32, kernel_size=(3, 3), stride=(1, 1)),
-             ReLU(),
-             Conv2d(32, 32, kernel_size=(3, 3), stride=(1, 1)),
-             ReLU(),
-             MaxPool2d(kernel_size=2, stride=2, padding=0, dilation=1, ceil_mode=False),
-             Flatten(start_dim=1, end_dim=-1),
-             Dropout(p=0.25, inplace=False),
-             Linear(in_features=6272, out_features=132, bias=True),
-             ReLU(),
-             Dropout(p=0.5, inplace=False),
-             Linear(in_features=132, out_features=11, bias=True),
-        )
+Vpath = os.path.dirname(os.path.abspath(__file__))
 
-    def forward(self, x):
-        return self.model(x)
 
-color_classifier = torch.load("colour classifier.pt")
+
+color_classifier = torch.load("colour model.pt")
 color_classifier = color_classifier.cuda()
 color_classifier.eval()
 
-body_classifier = torch.load('body classifier.pt')
+body_classifier = torch.load("body classifier.pt")
 body_classifier.eval()
 
 
@@ -59,7 +44,7 @@ class Detector:
         fps = cap.get(cv2.CAP_PROP_FPS)
         frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-
+        
         ffmpeg_cmd = f"ffmpeg -y -f rawvideo -pix_fmt bgr24 -s {frame_width}x{frame_height} -r {fps} -i - -c:v libx264 -preset fast -crf 30 -pix_fmt nv12 -an -vcodec libx264 {output_path}"
 
         output_file = subprocess.Popen(ffmpeg_cmd.split(' '), stdin=subprocess.PIPE)
@@ -168,3 +153,4 @@ class Detector:
                 cv2.putText(frame, color_name[color_mode_pred], (int(x1), int(y1)), cv2.FONT_HERSHEY_SIMPLEX, 1, (203, 192, 255), 2)
                 cv2.putText(frame,  body_name[body_mode_pred], (int(cx1), int(y2)), cv2.FONT_HERSHEY_SIMPLEX, 1, (203, 192, 255), 2)
                 self.clf_state = False
+
